@@ -1,45 +1,67 @@
 import streamlit as st
 import pyttsx3
 from streamlit_option_menu import option_menu
-import subprocess
-import sys
+import json
+from openai import OpenAI
 
-# Ensure required packages are installed
-#def install_and_import(package):
-#    try:
-#        __import__(package)
-#    except ImportError:
-#        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+# Streamlit App Layout: Set page config at the very beginning
+st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
 
-# Install necessary libraries
-#install_and_import("streamlit")
-#install_and_import("streamlit-option-menu")
-#install_and_import("pyttsx3")
+
+# Load configuration file for OpenAI API key
+try:
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+except FileNotFoundError:
+    st.error("Config file not found. Please ensure `config.json` is present.")
+    config = {}
+
+# Initialize OpenAI API client
+api_key = config.get('openai_api_key', st.text_input("Enter your OpenAI API key:", type="password"))
+if not api_key:
+    st.warning("Please provide a valid OpenAI API key to proceed.")
+    st.stop()
+
+client = OpenAI(api_key = api_key)
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
 
-# Chatbot personalities
+# Define chatbot personalities
 def chatbot_response(personality, user_input):
-    if personality == "Friendly":
-        return f"[Friendly Bot]: Hi there! {user_input} sounds interesting! How can I assist you?"
-    elif personality == "Professional":
-        return f"[Professional Bot]: Thank you for sharing. How may I help with that?"
-    elif personality == "Witty":
-        return f"[Witty Bot]: Oh, {user_input}? Sounds like a plot twist! What do you need?"
-    return "[Default Bot]: I'm here to help!"
+    prompt_templates = {
+        "Friendly": "You are a friendly and cheerful assistant. Respond warmly and positively.",
+        "Professional": "You are a professional assistant. Respond formally and concisely.",
+        "Witty": "You are a witty and humorous assistant. Respond with clever humor.",
+    }
+    system_prompt = prompt_templates.get(personality, "You are a helpful assistant.")
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_input},
+    ]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=150,
+            temperature=0.7,
+        )
+        response_message = response.choices[0].message.content
+        return response_message
+    except Exception as e:
+        return f"[Error]: {str(e)}"
 
-# Function to speak chatbot responses
-def speak_response(response):
+# Speak the chatbot response
+def speak_response(response, voice_rate):
+    engine.setProperty("rate", voice_rate)
     engine.say(response)
     engine.runAndWait()
 
-# App layout
-st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
+# Streamlit App Layout
 st.title("🤖 Multi-Personality Chatbot")
 st.markdown("A sleek chatbot with voice capabilities and multiple personalities.")
 
-# Sidebar for selecting chatbot personality
+# Sidebar for selecting personality
 with st.sidebar:
     st.header("Select Personality")
     personality = option_menu(
@@ -62,20 +84,41 @@ with st.sidebar:
         },
     )
 
-# Main chat interface
+    st.subheader("Voice Settings")
+    voice_rate = st.slider("Voice Rate", 100, 200, 150)
+
+# Chat input and display
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 chat_input = st.text_input("Type your message here:")
 
 if st.button("Send"):
     if chat_input.strip():
+        # Get chatbot response
         response = chatbot_response(personality, chat_input)
-        st.markdown(f"<div style='padding: 10px; border-radius: 8px; background: #1f2937; color: white;'>"
-                    f"{response}</div>", unsafe_allow_html=True)
+
+        # Save the interaction in chat history
+        st.session_state.chat_history.append({"role": "user", "content": chat_input})
+        st.session_state.chat_history.append({"role": "assistant", "content": response})
+
+        # Display the chat history
+        for message in st.session_state.chat_history:
+            role_style = (
+                "color: white; background: #1f2937;"
+                if message["role"] == "assistant"
+                else "color: black; background: #d1d5db;"
+            )
+            st.markdown(
+                f"<div style='padding:10px; border-radius:8px; {role_style}'>{message['content']}</div>",
+                unsafe_allow_html=True,
+            )
 
         # Option to hear the response
-        if st.checkbox("🔊 Enable Voice Response"):
-            speak_response(response)
+        if st.checkbox("🔊 Enable Voice Response", key="voice"):
+            speak_response(response, voice_rate)
 
-# Footer with animated futuristic styling
+# Footer with styling
 st.markdown(
     """
     <style>
