@@ -1,12 +1,10 @@
 import streamlit as st
-import pyttsx3
 from streamlit_option_menu import option_menu
 import json
 from openai import OpenAI
 
 # Streamlit App Layout: Set page config at the very beginning
 st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
-
 
 # Load configuration file for OpenAI API key
 try:
@@ -22,10 +20,7 @@ if not api_key:
     st.warning("Please provide a valid OpenAI API key to proceed.")
     st.stop()
 
-client = OpenAI(api_key = api_key)
-
-# Initialize text-to-speech engine
-engine = pyttsx3.init()
+client = OpenAI(api_key=api_key)
 
 # Define chatbot personalities
 def chatbot_response(personality, user_input):
@@ -51,15 +46,9 @@ def chatbot_response(personality, user_input):
     except Exception as e:
         return f"[Error]: {str(e)}"
 
-# Speak the chatbot response
-def speak_response(response, voice_rate):
-    engine.setProperty("rate", voice_rate)
-    engine.say(response)
-    engine.runAndWait()
-
 # Streamlit App Layout
 st.title("🤖 Multi-Personality Chatbot")
-st.markdown("A sleek chatbot with voice capabilities and multiple personalities.")
+st.markdown("A sleek chatbot with multiple personalities.")
 
 # Sidebar for selecting personality
 with st.sidebar:
@@ -83,9 +72,6 @@ with st.sidebar:
             "nav-link-selected": {"background-color": "#2563eb"},
         },
     )
-
-    st.subheader("Voice Settings")
-    voice_rate = st.slider("Voice Rate", 100, 200, 150)
 
 # Chat input and display
 if "chat_history" not in st.session_state:
@@ -113,10 +99,6 @@ if st.button("Send"):
                 f"<div style='padding:10px; border-radius:8px; {role_style}'>{message['content']}</div>",
                 unsafe_allow_html=True,
             )
-
-        # Option to hear the response
-        if st.checkbox("🔊 Enable Voice Response", key="voice"):
-            speak_response(response, voice_rate)
 
 # Footer with styling
 st.markdown(
