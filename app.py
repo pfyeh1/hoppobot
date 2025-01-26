@@ -25,9 +25,9 @@ client = OpenAI(api_key=api_key)
 # Define chatbot personalities
 def chatbot_response(personality, user_input):
     prompt_templates = {
-        "Friendly": "You are a friendly and cheerful assistant. Respond warmly and positively.",
-        "Professional": "You are a professional assistant. Respond formally and concisely.",
-        "Witty": "You are a witty and humorous assistant. Respond with clever humor.",
+        "Hulk Hoppo": "You are a lifelong lovey to a 12-yeard old boy. You have the personality of the incredible hulk. Respond with the Incredible Hulk's traits",
+        "Baby Hoppo": "You are a lifelong lovey to a 12-year old boy. You have the personality of a cute and adoreable of lovey who needs tender care and affection. Respond like a 4-year old.",
+        "Ironman Hoppo": "You are a lifelong lovey to a 12-year old boy. You have the personality of iron man the avenger. Respond with Iron Man's traits.",
     }
     system_prompt = prompt_templates.get(personality, "You are a helpful assistant.")
     messages = [
@@ -47,7 +47,7 @@ def chatbot_response(personality, user_input):
         return f"[Error]: {str(e)}"
 
 # Streamlit App Layout
-st.title("🤖 Multi-Personality Chatbot")
+st.title("🤖 Hoppobot")
 st.markdown("A sleek chatbot with multiple personalities.")
 
 # Sidebar for selecting personality
@@ -55,8 +55,8 @@ with st.sidebar:
     st.header("Select Personality")
     personality = option_menu(
         menu_title=None,
-        options=["Friendly", "Professional", "Witty"],
-        icons=["emoji-smile", "briefcase", "emoji-laughing"],
+        options=["Hulk Hoppo", "Baby Hoppo", "Ironman Hoppo"],
+        icons=["circle-fill", "emoji-smile-fill", "robot"],
         default_index=0,
         orientation="vertical",
         styles={
