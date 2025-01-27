@@ -6,6 +6,7 @@ from openai import OpenAI
 # Streamlit App Layout: Set page config at the very beginning
 st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
 
+
 # Load configuration file for OpenAI API key
 try:
     with open('config.json', 'r') as f:
