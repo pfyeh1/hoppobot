@@ -23,7 +23,7 @@ st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
 
 #client = OpenAI(api_key=api_key)
 
-openai.api_key = st.secrets.openai_key
+openai.api_key = st.secrets["openai"]["api_key"]
 
 # Define chatbot personalities
 def chatbot_response(personality, user_input):
