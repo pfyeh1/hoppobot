@@ -8,20 +8,22 @@ st.set_page_config(page_title="Multi-Personality Chatbot", layout="wide")
 
 
 # Load configuration file for OpenAI API key
-try:
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-except FileNotFoundError:
-    st.error("Config file not found. Please ensure `config.json` is present.")
-    config = {}
+#try:
+#    with open('config.json', 'r') as f:
+#        config = json.load(f)
+#except FileNotFoundError:
+#    st.error("Config file not found. Please ensure `config.json` is present.")
+#    config = {}
 
 # Initialize OpenAI API client
-api_key = config.get('openai_api_key', st.text_input("Enter your OpenAI API key:", type="password"))
-if not api_key:
-    st.warning("Please provide a valid OpenAI API key to proceed.")
-    st.stop()
+#api_key = config.get('openai_api_key', st.text_input("Enter your OpenAI API key:", type="password"))
+#if not api_key:
+#    st.warning("Please provide a valid OpenAI API key to proceed.")
+#    st.stop()
 
-client = OpenAI(api_key=api_key)
+#client = OpenAI(api_key=api_key)
+
+openai.api_key = st.secrets.openai_key
 
 # Define chatbot personalities
 def chatbot_response(personality, user_input):
