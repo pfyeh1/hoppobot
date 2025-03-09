@@ -2,4 +2,4 @@ streamlit==1.19.0
 streamlit-option-menu==0.3.2
 altair<5
 openai
-pyobjc
+# pyobjc
